@@ -1,7 +1,6 @@
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import akka.actor.Actor
 import akka.actor.ActorSystem
 import akka.actor.Props
@@ -15,15 +14,20 @@ def getListFuture(begin:Int):Future[Seq[Int]]=Future {
 
 class PrintActor extends Actor {
   def receive = {
-    case a:Seq[(Int, Int)] => println(a)
-    case _       => println("huh?")
+    case a: Seq[(Int, Int)] => println("zip:" + a)
+    case _ => println(s"huh?")
   }
 }
 
 val system = ActorSystem("HelloSystem")
 // default Actor constructor
-val helloActor = system.actorOf(Props[PrintActor], name = "helloactor")
+val printActor = system.actorOf(Props[PrintActor])
 
-val pairListFuture: Seq[Future[Seq[(Int, Int)]]] =for(i <- Seq(1,4,7); l1 = getList(i))
-  yield   getListFuture(i).map(l=>l.zip(l1))
+for (i <- Seq(1, 4, 7); l1 = getList(i)) {
+  val futureZip = getListFuture(i).map(l => l.zip(l1))
+  futureZip.onComplete {
+    case Success(zip) => printActor ! zip
+    case Failure(e) => printActor ! e
+  }
+}
 
