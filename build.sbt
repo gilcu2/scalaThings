@@ -16,5 +16,13 @@ libraryDependencies ++= Seq(
   "com.github.julien-truffaut" %%  "monocle-law"   % monocleVersion % "test"
 )
 
+val circeVersion = "0.8.0"
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
+
 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.11
 libraryDependencies += "com.typesafe.akka" % "akka-actor_2.12" % "2.5.3"
